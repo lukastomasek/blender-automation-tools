@@ -21,7 +21,7 @@ bl_info = {
     "name" : "3dStaged Automation Tools",
     "author" : "Lukas Tomasek",
     "description" : "3dStaged Automation Tools",
-    "blender" : (2, 80, 0),
+    "blender" : (4, 0, 0),
     "version" : (0, 0, 1),
     "location" : "",
     "warning" : "",
@@ -47,6 +47,26 @@ class ApplyAllTransforms(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class MergeByDistance(bpy.types.Operator):
+    bl_idname = "mesh.merge_by_distance"
+    bl_label = "Merge By Distance"
+
+    def execute(self, context):
+        selected_objects = bpy.context.selected_objects
+
+        if selected_objects and bpy.context.object.mode == 'EDIT':
+         for obj in selected_objects:
+            select_mode = bpy.context.tool_settings.mesh_select_mode[:]
+            # face mode
+            if select_mode[2]:
+               bpy.ops.mesh.remove_doubles(threshold=0.01)
+            self.report({'INFO'}, "All objects merged")
+        else:
+            self.report({'ERROR'}, "No Face selected")
+
+
+        return {'FINISHED'}
+
 
 class Panel(bpy.types.Panel):
     bl_label = '3dStaged'
@@ -60,8 +80,15 @@ class Panel(bpy.types.Panel):
        layout = self.layout
        scene = context.scene
 
+       layout.label(text="Object")
        col = layout.column(align=True)
        col.operator("object.apply_all_transforms", text="Apply All Transforms")
+
+       layout.separator()
+
+       layout.label(text="Mesh")
+       col2 = layout.column(align=True) 
+       col2.operator("mesh.merge_by_distance", text="Merge By Distance")
 
        layout.separator()
 
@@ -70,7 +97,9 @@ class Panel(bpy.types.Panel):
 def register():
     bpy.utils.register_class(Panel)
     bpy.utils.register_class(ApplyAllTransforms)
+    bpy.utils.register_class(MergeByDistance)
 
 def unregister():
     bpy.utils.unregister_class(Panel)
     bpy.utils.unregister_class(ApplyAllTransforms)
+    bpy.utils.unregister_class(MergeByDistance)
