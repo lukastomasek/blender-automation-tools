@@ -11,6 +11,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+# === HELPFUL LINKS ===
+# https://blender.stackexchange.com/questions/57306/how-to-create-a-custom-ui/57332#57332
+
+
 import bpy
 
 bl_info = {
@@ -24,23 +28,49 @@ bl_info = {
     "category" : "Generic"
 }
 
+class ApplyAllTransforms(bpy.types.Operator):
+    bl_idname = "object.apply_all_transforms"
+    bl_label = "Apply All Transforms"
+
+    def execute(self, context):
+        selected_objects = bpy.context.selected_objects
+
+        if selected_objects:
+         for obj in selected_objects:
+            bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+        
+            self.report({'INFO'}, "All transforms applied")
+        else:
+            self.report({'ERROR'}, "No objects selected")
+
+
+        return {'FINISHED'}
+
+
 
 class Panel(bpy.types.Panel):
- bl_label = '3dStaged Automation Tools'
- bl_name = '3dStaged Automation Tools'
- bl_idname = '3dstaged_automation_tools'
- bl_space_type = 'VIEW_3D'
- bl_region_type = 'UI'
- bl_category = 'Tool'
+    bl_label = '3dStaged'
+    bl_name = '3dStaged Automation Tools'
+    bl_idname = '3dstaged_automation_tools'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'Tool'
 
- def draw(self, context):
-    layout = self.layout
-    scene = context.scene
+    def draw(self, context):
+       layout = self.layout
+       scene = context.scene
 
-    layout.label(text="3dStaged Automation Tools")
+       col = layout.column(align=True)
+       col.operator("object.apply_all_transforms", text="Apply All Transforms")
 
+       layout.separator()
+
+
+        
 def register():
     bpy.utils.register_class(Panel)
+    bpy.utils.register_class(ApplyAllTransforms)
 
 def unregister():
     bpy.utils.unregister_class(Panel)
+    bpy.utils.unregister_class(ApplyAllTransforms)
