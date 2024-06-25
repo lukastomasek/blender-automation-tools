@@ -68,6 +68,25 @@ class MergeByDistance(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class ApplyCollisionAndDecimate(bpy.types.Operator):
+    bl_idname = "modifier.apply_collision_and_decimate"
+    bl_label = "Apply Collision and Decimate"
+    
+    def execute(self, context):
+        selected_objects = bpy.context.selected_objects
+
+        if selected_objects:
+            for obj in selected_objects:
+                obj.modifiers.new(name="Collision", type="COLLISION")
+                obj.modifiers.new(name="Decimate", type="DECIMATE")
+                self.report({'INFO'}, "All modifiers applied")
+        else:
+            self.report({'ERROR'}, "No objects selected")
+
+
+        return {'FINISHED'}
+    
+
 class Panel(bpy.types.Panel):
     bl_label = '3dStaged'
     bl_name = '3dStaged Automation Tools'
@@ -92,14 +111,23 @@ class Panel(bpy.types.Panel):
 
        layout.separator()
 
+       layout.label(text="Modifiers")
+       col3 = layout.column(align=True)
+       col3.operator('modifier.apply_collision_and_decimate', text="Apply Collision and Decimate")
+
+       layout.separator()
+
+
 
         
 def register():
     bpy.utils.register_class(Panel)
     bpy.utils.register_class(ApplyAllTransforms)
     bpy.utils.register_class(MergeByDistance)
+    bpy.utils.register_class(ApplyCollisionAndDecimate)
 
 def unregister():
     bpy.utils.unregister_class(Panel)
     bpy.utils.unregister_class(ApplyAllTransforms)
     bpy.utils.unregister_class(MergeByDistance)
+    bpy.utils.unregister_class(ApplyCollisionAndDecimate)
