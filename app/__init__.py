@@ -71,20 +71,45 @@ class MergeByDistance(bpy.types.Operator):
 class ApplyCollisionAndDecimate(bpy.types.Operator):
     bl_idname = "modifier.apply_collision_and_decimate"
     bl_label = "Apply Collision and Decimate"
-    
+
+    material_data: bpy.props.StringProperty(
+        name="m_skc",
+        description="m_skc",
+        default="m_skc"
+    )
+
+    # https://docs.google.com/document/d/1UZVHVROdbnWFJATT-PnoRUZ5j9nBbaqzSBvj_PGpKbA/edit    
     def execute(self, context):
         selected_objects = bpy.context.selected_objects
+        original_object = bpy.context.object
 
         if selected_objects:
-            for obj in selected_objects:
-                obj.modifiers.new(name="Collision", type="COLLISION")
-                obj.modifiers.new(name="Decimate", type="DECIMATE")
-                self.report({'INFO'}, "All modifiers applied")
+            bpy.ops.object.duplicate()
+            skeleton_obj = bpy.context.selected_objects[0]
+            skeleton_obj.name = "a_skc"
+            skeleton_obj.modifiers.new(name="Collision", type="COLLISION")
+
+            decimate_mod = skeleton_obj.modifiers.new(name="Decimate", type="DECIMATE")
+            decimate_mod.ratio = 0.5
+
+            # remove previous materials and create new one
+            skeleton_material = bpy.data.materials.new(self.material_data)
+            skeleton_material.alpha_threshold = 0
+            skeleton_material.blend_method = 'HASHED'
+            skeleton_obj.data.materials.clear()
+            skeleton_obj.data.materials.append(skeleton_material)
+
+            skeleton_obj.parent = original_object
+            skeleton_obj.select_set(False)
+            
+            self.report({'INFO'}, "All modifiers applied")
         else:
             self.report({'ERROR'}, "No objects selected")
 
 
         return {'FINISHED'}
+
+
     
 
 class Panel(bpy.types.Panel):
