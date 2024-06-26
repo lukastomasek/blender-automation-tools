@@ -16,6 +16,7 @@
 #======================
 
 import bpy
+import math
 
 bl_info = {
     "name" : "3dStaged Automation Tools",
@@ -46,7 +47,6 @@ class ApplyAllTransforms(bpy.types.Operator):
 
         return {'FINISHED'}
 
-
 class MergeByDistance(bpy.types.Operator):
     bl_idname = "mesh.merge_by_distance"
     bl_label = "Merge By Distance"
@@ -57,16 +57,16 @@ class MergeByDistance(bpy.types.Operator):
         if selected_objects and bpy.context.object.mode == 'EDIT':
          for obj in selected_objects:
             select_mode = bpy.context.tool_settings.mesh_select_mode[:]
-            # face mode
+            # only apply if mesh is in `face` mode
             if select_mode[2]:
                bpy.ops.mesh.remove_doubles(threshold=0.01)
+               
             self.report({'INFO'}, "All objects merged")
         else:
             self.report({'ERROR'}, "No Face selected")
 
 
         return {'FINISHED'}
-
 
 class ApplyCollisionAndDecimate(bpy.types.Operator):
     bl_idname = "modifier.apply_collision_and_decimate"
@@ -96,6 +96,12 @@ class ApplyCollisionAndDecimate(bpy.types.Operator):
             skeleton_material = bpy.data.materials.new(self.material_data)
             skeleton_material.alpha_threshold = 0
             skeleton_material.blend_method = 'HASHED'
+            skeleton_material.use_nodes = True
+            principled_bsdf = skeleton_material.node_tree.nodes.get('Principled BSDF')
+
+            if principled_bsdf:
+                principled_bsdf.inputs['Alpha'].default_value = 0
+
             skeleton_obj.data.materials.clear()
             skeleton_obj.data.materials.append(skeleton_material)
 
@@ -108,9 +114,6 @@ class ApplyCollisionAndDecimate(bpy.types.Operator):
 
 
         return {'FINISHED'}
-
-
-    
 
 class Panel(bpy.types.Panel):
     bl_label = '3dStaged'
@@ -141,15 +144,13 @@ class Panel(bpy.types.Panel):
        col3.operator('modifier.apply_collision_and_decimate', text="Apply Collision and Decimate")
 
        layout.separator()
-
-
-
         
 def register():
     bpy.utils.register_class(Panel)
     bpy.utils.register_class(ApplyAllTransforms)
     bpy.utils.register_class(MergeByDistance)
     bpy.utils.register_class(ApplyCollisionAndDecimate)
+
 
 def unregister():
     bpy.utils.unregister_class(Panel)
