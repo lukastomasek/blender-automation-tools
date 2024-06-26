@@ -16,6 +16,7 @@
 #======================
 
 import bpy
+import math
 
 bl_info = {
     "name" : "3dStaged Automation Tools",
@@ -46,7 +47,6 @@ class ApplyAllTransforms(bpy.types.Operator):
 
         return {'FINISHED'}
 
-
 class MergeByDistance(bpy.types.Operator):
     bl_idname = "mesh.merge_by_distance"
     bl_label = "Merge By Distance"
@@ -57,9 +57,10 @@ class MergeByDistance(bpy.types.Operator):
         if selected_objects and bpy.context.object.mode == 'EDIT':
          for obj in selected_objects:
             select_mode = bpy.context.tool_settings.mesh_select_mode[:]
-            # face mode
+            # only apply if mesh is in `face` mode
             if select_mode[2]:
                bpy.ops.mesh.remove_doubles(threshold=0.01)
+               
             self.report({'INFO'}, "All objects merged")
         else:
             self.report({'ERROR'}, "No Face selected")
@@ -67,6 +68,52 @@ class MergeByDistance(bpy.types.Operator):
 
         return {'FINISHED'}
 
+class ApplyCollisionAndDecimate(bpy.types.Operator):
+    bl_idname = "modifier.apply_collision_and_decimate"
+    bl_label = "Apply Collision and Decimate"
+
+    material_data: bpy.props.StringProperty(
+        name="m_skc",
+        description="m_skc",
+        default="m_skc"
+    )
+
+    # https://docs.google.com/document/d/1UZVHVROdbnWFJATT-PnoRUZ5j9nBbaqzSBvj_PGpKbA/edit    
+    def execute(self, context):
+        selected_objects = bpy.context.selected_objects
+        original_object = bpy.context.object
+
+        if selected_objects:
+            bpy.ops.object.duplicate()
+            skeleton_obj = bpy.context.selected_objects[0]
+            skeleton_obj.name = "a_skc"
+            skeleton_obj.modifiers.new(name="Collision", type="COLLISION")
+
+            decimate_mod = skeleton_obj.modifiers.new(name="Decimate", type="DECIMATE")
+            decimate_mod.ratio = 0.5
+
+            # remove previous materials and create new one
+            skeleton_material = bpy.data.materials.new(self.material_data)
+            skeleton_material.alpha_threshold = 0
+            skeleton_material.blend_method = 'HASHED'
+            skeleton_material.use_nodes = True
+            principled_bsdf = skeleton_material.node_tree.nodes.get('Principled BSDF')
+
+            if principled_bsdf:
+                principled_bsdf.inputs['Alpha'].default_value = 0
+
+            skeleton_obj.data.materials.clear()
+            skeleton_obj.data.materials.append(skeleton_material)
+
+            skeleton_obj.parent = original_object
+            skeleton_obj.select_set(False)
+            
+            self.report({'INFO'}, "All modifiers applied")
+        else:
+            self.report({'ERROR'}, "No objects selected")
+
+
+        return {'FINISHED'}
 
 class Panel(bpy.types.Panel):
     bl_label = '3dStaged'
@@ -92,14 +139,21 @@ class Panel(bpy.types.Panel):
 
        layout.separator()
 
+       layout.label(text="Modifiers")
+       col3 = layout.column(align=True)
+       col3.operator('modifier.apply_collision_and_decimate', text="Apply Collision and Decimate")
 
+       layout.separator()
         
 def register():
     bpy.utils.register_class(Panel)
     bpy.utils.register_class(ApplyAllTransforms)
     bpy.utils.register_class(MergeByDistance)
+    bpy.utils.register_class(ApplyCollisionAndDecimate)
+
 
 def unregister():
     bpy.utils.unregister_class(Panel)
     bpy.utils.unregister_class(ApplyAllTransforms)
     bpy.utils.unregister_class(MergeByDistance)
+    bpy.utils.unregister_class(ApplyCollisionAndDecimate)
