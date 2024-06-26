@@ -86,7 +86,7 @@ class ApplyCollisionAndDecimate(bpy.types.Operator):
         if selected_objects:
             bpy.ops.object.duplicate()
             skeleton_obj = bpy.context.selected_objects[0]
-            skeleton_obj.name = "a_skc"
+            skeleton_obj.name = original_object.name + "_" + "a_skc"
             skeleton_obj.modifiers.new(name="Collision", type="COLLISION")
 
             decimate_mod = skeleton_obj.modifiers.new(name="Decimate", type="DECIMATE")
@@ -115,6 +115,23 @@ class ApplyCollisionAndDecimate(bpy.types.Operator):
 
         return {'FINISHED'}
 
+
+class ExportModel(bpy.types.Operator):
+    bl_idname = "export.model"
+    bl_label = "Export Model"
+
+    copyright_text: bpy.props.StringProperty(
+        name="Copyright",
+        description="Copyright information to include in the exported glTF file",
+        default="Copyright:©Unreserved Inc. All rights reserved"
+    )
+
+    def execute(self, context):
+        bpy.ops.export_scene.gltf('INVOKE_DEFAULT', export_copyright=self.copyright_text)
+        self.report({'INFO'}, "Model exported")
+
+        return {'FINISHED'}
+
 class Panel(bpy.types.Panel):
     bl_label = '3dStaged'
     bl_name = '3dStaged Automation Tools'
@@ -127,29 +144,50 @@ class Panel(bpy.types.Panel):
        layout = self.layout
        scene = context.scene
 
-       layout.label(text="Object")
-       col = layout.column(align=True)
-       col.operator("object.apply_all_transforms", text="Apply All Transforms")
+       self.draw_object_window(context, layout=layout)
 
-       layout.separator()
+       self.draw_mesh_window(context, layout=layout)
 
-       layout.label(text="Mesh")
-       col2 = layout.column(align=True) 
-       col2.operator("mesh.merge_by_distance", text="Merge By Distance")
+       self.draw_modifiers_window(context, layout=layout)
 
-       layout.separator()
+       self.draw_export_window(context, layout=layout)
 
-       layout.label(text="Modifiers")
-       col3 = layout.column(align=True)
-       col3.operator('modifier.apply_collision_and_decimate', text="Apply Collision and Decimate")
 
-       layout.separator()
+
+    def draw_object_window(self, context, layout):
+        layout.label(text="Object")
+        col = layout.column(align=True)
+        col.operator("object.apply_all_transforms", text="Apply All Transforms")
+        layout.separator()
+
+    def draw_mesh_window(self, context, layout):
+        layout.label(text="Mesh")
+        col2 = layout.column(align=True) 
+        col2.operator("mesh.merge_by_distance", text="Merge By Distance")
+        layout.separator()
+
+    def draw_modifiers_window(self, context, layout):
+        layout.label(text="Modifiers")
+        col3 = layout.column(align=True)
+        col3.operator('modifier.apply_collision_and_decimate', text="Apply Collision and Decimate")
+        layout.separator()
+
+    def draw_export_window(self, context, layout):
+        layout.label(text="Export")
+        col4 = layout.column(align=True)
+        row = col4.row(align=True)
+        col4.operator('export.model', text="Export Model")
+        layout.separator()
+
+
         
 def register():
     bpy.utils.register_class(Panel)
     bpy.utils.register_class(ApplyAllTransforms)
     bpy.utils.register_class(MergeByDistance)
     bpy.utils.register_class(ApplyCollisionAndDecimate)
+    bpy.utils.register_class(ExportModel)
+
 
 
 def unregister():
@@ -157,3 +195,4 @@ def unregister():
     bpy.utils.unregister_class(ApplyAllTransforms)
     bpy.utils.unregister_class(MergeByDistance)
     bpy.utils.unregister_class(ApplyCollisionAndDecimate)
+    bpy.utils.unregister_class(ExportModel)
