@@ -37,7 +37,7 @@ class ApplyAllTransforms(bpy.types.Operator):
 
         if selected_objects:
          for obj in selected_objects:
-            bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+            bpy.ops.object.transform_apply(location=True, rotation=True, scale=True, properties=True)
         
             self.report({'INFO'}, "All transforms applied")
         else:
@@ -121,12 +121,12 @@ class ExportModel(bpy.types.Operator):
 
     copyright_text: bpy.props.StringProperty(
         name="Copyright",
-        description="Copyright information to include in the exported glTF file",
+        description="©Unreserved Inc. All rights reserved",
         default="Copyright:©Unreserved Inc. All rights reserved"
     )
 
     def execute(self, context):
-        bpy.ops.export_scene.gltf('INVOKE_DEFAULT', export_copyright=self.copyright_text)
+        bpy.ops.export_scene.gltf('INVOKE_DEFAULT', export_copyright=self.copyright_text, use_selection=True, use_visible=True )
         self.report({'INFO'}, "Model exported")
 
         return {'FINISHED'}
