@@ -28,6 +28,19 @@ bl_info = {
     "category" : "Generic"
 }
 
+class SceneProperties(bpy.types.PropertyGroup):
+    # OBJ exxport not supported from blender yet
+    export_options: bpy.props.EnumProperty(
+        items=[
+            ('GLB', 'GLB', 'gltf binary'),
+            # ('OBJ', 'OBJ', 'wavefront obj'),
+            ('FBX', 'FBX', 'binary fbx'),
+        ],
+        name="export_options",
+        description="Export Options",
+        default="GLB"
+    )
+
 class ApplyAllTransforms(bpy.types.Operator):
     bl_idname = "object.apply_all_transforms"
     bl_label = "Apply All Transforms"
@@ -42,7 +55,6 @@ class ApplyAllTransforms(bpy.types.Operator):
             self.report({'INFO'}, "All transforms applied")
         else:
             self.report({'ERROR'}, "No objects selected")
-
 
         return {'FINISHED'}
 
@@ -111,9 +123,7 @@ class ApplyCollisionAndDecimate(bpy.types.Operator):
         else:
             self.report({'ERROR'}, "No objects selected")
 
-
         return {'FINISHED'}
-
 
 class ExportModel(bpy.types.Operator):
     bl_idname = "export.model"
@@ -126,10 +136,21 @@ class ExportModel(bpy.types.Operator):
     )
 
     def execute(self, context):
-        bpy.ops.export_scene.gltf('INVOKE_DEFAULT', export_copyright=self.copyright_text, use_selection=True, use_visible=True )
+        export_options = context.scene.my_props.export_options
+
+        if export_options == 'GLB':
+            bpy.ops.export_scene.gltf('INVOKE_DEFAULT', export_copyright=self.copyright_text, use_selection=True, use_visible=True )
+        elif export_options == 'OBJ':
+              print('Exporting OBJ not supported from blender yet')  
+        elif export_options == 'FBX':
+            bpy.ops.export_scene.fbx('INVOKE_DEFAULT', use_selection=True, use_visible=True )
+        else:
+            self.report({'ERROR'}, "No export options selected")
+
         self.report({'INFO'}, "Model exported")
 
         return {'FINISHED'}
+
 
 class Panel(bpy.types.Panel):
     bl_label = '3dStaged'
@@ -142,14 +163,15 @@ class Panel(bpy.types.Panel):
     def draw(self, context):
        layout = self.layout
        scene = context.scene
-
+       my_props = scene.my_props 
+    
        self.draw_object_window(context, layout=layout)
 
        self.draw_mesh_window(context, layout=layout)
 
        self.draw_modifiers_window(context, layout=layout)
-
-       self.draw_export_window(context, layout=layout)
+       
+       self.draw_export_window(context, layout=layout, my_props=my_props)
 
     def draw_object_window(self, context, layout):
         layout.label(text="Object")
@@ -169,23 +191,34 @@ class Panel(bpy.types.Panel):
         col.operator('modifier.apply_collision_and_decimate', text="Apply Collision and Decimate")
         layout.separator()
 
-    def draw_export_window(self, context, layout):
+    def draw_export_window(self, context, layout, my_props):
         layout.label(text="Export")
         col = layout.column(align=True)
-        row = col.row(align=True)
+        col.prop(my_props, "export_options", text="Options", expand=False)
+        col.separator(factor=2)
         col.operator('export.model', text="Export Model")
         layout.separator()
+
+classes = (
+    Panel,
+    ApplyAllTransforms,
+    MergeByDistance,
+    ApplyCollisionAndDecimate,
+    ExportModel,
+    SceneProperties
+)
         
 def register():
-    bpy.utils.register_class(Panel)
-    bpy.utils.register_class(ApplyAllTransforms)
-    bpy.utils.register_class(MergeByDistance)
-    bpy.utils.register_class(ApplyCollisionAndDecimate)
-    bpy.utils.register_class(ExportModel)
+    for cls in classes:
+        bpy.utils.register_class(cls)
+
+    bpy.types.Scene.my_props = bpy.props.PointerProperty(type=SceneProperties)
 
 def unregister():
-    bpy.utils.unregister_class(Panel)
-    bpy.utils.unregister_class(ApplyAllTransforms)
-    bpy.utils.unregister_class(MergeByDistance)
-    bpy.utils.unregister_class(ApplyCollisionAndDecimate)
-    bpy.utils.unregister_class(ExportModel)
+    for cls in classes:
+        bpy.utils.unregister_class(cls)
+
+    del bpy.types.Scene.my_props
+
+if __name__ == "__init__":
+    register()
