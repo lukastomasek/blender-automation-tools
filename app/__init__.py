@@ -16,7 +16,6 @@
 #======================
 
 import bpy
-import math
 
 bl_info = {
     "name" : "3dStaged Automation Tools",
@@ -152,8 +151,6 @@ class Panel(bpy.types.Panel):
 
        self.draw_export_window(context, layout=layout)
 
-
-
     def draw_object_window(self, context, layout):
         layout.label(text="Object")
         col = layout.column(align=True)
@@ -162,24 +159,22 @@ class Panel(bpy.types.Panel):
 
     def draw_mesh_window(self, context, layout):
         layout.label(text="Mesh")
-        col2 = layout.column(align=True) 
-        col2.operator("mesh.merge_by_distance", text="Merge By Distance")
+        col = layout.column(align=True) 
+        col.operator("mesh.merge_by_distance", text="Merge By Distance")
         layout.separator()
 
     def draw_modifiers_window(self, context, layout):
         layout.label(text="Modifiers")
-        col3 = layout.column(align=True)
-        col3.operator('modifier.apply_collision_and_decimate', text="Apply Collision and Decimate")
+        col = layout.column(align=True)
+        col.operator('modifier.apply_collision_and_decimate', text="Apply Collision and Decimate")
         layout.separator()
 
     def draw_export_window(self, context, layout):
         layout.label(text="Export")
-        col4 = layout.column(align=True)
-        row = col4.row(align=True)
-        col4.operator('export.model', text="Export Model")
+        col = layout.column(align=True)
+        row = col.row(align=True)
+        col.operator('export.model', text="Export Model")
         layout.separator()
-
-
         
 def register():
     bpy.utils.register_class(Panel)
@@ -187,8 +182,6 @@ def register():
     bpy.utils.register_class(MergeByDistance)
     bpy.utils.register_class(ApplyCollisionAndDecimate)
     bpy.utils.register_class(ExportModel)
-
-
 
 def unregister():
     bpy.utils.unregister_class(Panel)
