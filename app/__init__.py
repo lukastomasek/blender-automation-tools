@@ -12,6 +12,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 # === HELPFUL LINKS ===
+# Official docs: https://docs.blender.org/api/current/index.html
 # https://blender.stackexchange.com/questions/57306/how-to-create-a-custom-ui/57332#57332
 #======================
 
@@ -143,7 +144,7 @@ class ExportModel(bpy.types.Operator):
         elif export_options == 'OBJ':
               print('Exporting OBJ not supported from blender yet')  
         elif export_options == 'FBX':
-            bpy.ops.export_scene.fbx('INVOKE_DEFAULT', use_selection=True, use_visible=True )
+            bpy.ops.export_scene.fbx('INVOKE_DEFAULT', use_selection=True, use_visible=True, object_types= {'MESH'})
         else:
             self.report({'ERROR'}, "No export options selected")
 
