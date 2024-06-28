@@ -180,6 +180,17 @@ class ExportModel(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class RemoveEmpty(bpy.types.Operator):
+    bl_idname = "object.remove_empty"
+    bl_label = "Remove Empty"
+
+    def execute(self, context):
+        msg = Utils.remove_empty()
+
+        self.report({'INFO'}, msg)
+
+        return {'FINISHED'}
+
 class Panel(bpy.types.Panel):
     bl_label = '3dStaged'
     bl_name = '3dStaged Automation Tools'
@@ -205,6 +216,8 @@ class Panel(bpy.types.Panel):
         layout.label(text="Object")
         col = layout.column(align=True)
         col.operator("object.apply_all_transforms", text="Apply All Transforms")
+        col.separator()
+        col.operator("object.remove_empty", text="Remove Empty")
         layout.separator()
 
     def draw_mesh_window(self, context, layout):
@@ -234,6 +247,7 @@ classes = (
     ApplyCollisionAndDecimate,
     ExportModel,
     SceneProperties,
+    RemoveEmpty
 )
         
 def register():
