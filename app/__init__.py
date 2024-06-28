@@ -24,13 +24,36 @@ bl_info = {
     "description" : "3dStaged Automation Tools",
     "blender" : (4, 0, 0),
     "version" : (0, 0, 1),
-    "location" : "",
+    "location" : "Tool -> 3dStaged Automation Tools",
     "warning" : "",
+    "doc_url": "https://github.com/lukastomasek/blender-automation-tools",
     "category" : "Generic"
 }
 
+class Utils():
+    @staticmethod
+    def remove_empty():
+        parent = bpy.context.active_object
+
+        if not parent:
+            return "No Object Selected"
+
+        for child in parent.children:
+            if child.name.endswith(".001"):
+                name = child.name.replace(".001", "")
+                child.name = name
+                bpy.context.view_layer.objects.active = parent
+                parent.select_set(True)
+                bpy.ops.object.delete()
+
+                return "FINISHED"
+
+
+        return "FINISHED"
+    
+
 class SceneProperties(bpy.types.PropertyGroup):
-    # OBJ exxport not supported from blender yet
+    # OBJ export not supported from blender yet
     export_options: bpy.props.EnumProperty(
         items=[
             ('GLB', 'GLB', 'gltf binary'),
@@ -137,6 +160,10 @@ class ExportModel(bpy.types.Operator):
     )
 
     def execute(self, context):
+        msg = Utils.remove_empty()
+
+        self.report({'INFO'}, msg)
+
         export_options = context.scene.my_props.export_options
 
         if export_options == 'GLB':
@@ -144,7 +171,7 @@ class ExportModel(bpy.types.Operator):
         elif export_options == 'OBJ':
               print('Exporting OBJ not supported from blender yet')  
         elif export_options == 'FBX':
-            bpy.ops.export_scene.fbx('INVOKE_DEFAULT', use_selection=True, use_visible=True, object_types= {'MESH'})
+            bpy.ops.export_scene.fbx('INVOKE_DEFAULT', use_selection=True, use_visible=True, object_types={'MESH'}, use_space_transform=True)
         else:
             self.report({'ERROR'}, "No export options selected")
 
@@ -206,7 +233,7 @@ classes = (
     MergeByDistance,
     ApplyCollisionAndDecimate,
     ExportModel,
-    SceneProperties
+    SceneProperties,
 )
         
 def register():
