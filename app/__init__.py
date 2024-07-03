@@ -94,7 +94,7 @@ class MergeByDistance(bpy.types.Operator):
             select_mode = bpy.context.tool_settings.mesh_select_mode[:]
             # only apply if mesh is in `face` mode
             if select_mode[2]:
-               bpy.ops.mesh.remove_doubles(threshold=0.01)
+               bpy.ops.mesh.remove_doubles(threshold=0.0001)
                
             self.report({'INFO'}, "All objects merged")
         else:
