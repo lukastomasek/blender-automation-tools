@@ -171,7 +171,7 @@ class ExportModel(bpy.types.Operator):
         elif export_options == 'OBJ':
               print('Exporting OBJ not supported from blender yet')  
         elif export_options == 'FBX':
-            bpy.ops.export_scene.fbx('INVOKE_DEFAULT', use_selection=True, use_visible=True, object_types={'MESH'}, use_space_transform=True)
+            bpy.ops.export_scene.fbx('INVOKE_DEFAULT', use_selection=True, use_visible=False, object_types={'MESH'}, use_space_transform=True, bake_space_transform=True, bake_anim=False)
         else:
             self.report({'ERROR'}, "No export options selected")
 
