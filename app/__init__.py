@@ -121,7 +121,7 @@ class ApplyCollisionAndDecimate(bpy.types.Operator):
         if selected_objects:
             bpy.ops.object.duplicate()
             skeleton_obj = bpy.context.selected_objects[0]
-            skeleton_obj.name = original_object.name + "_" + "a_skc"
+            skeleton_obj.name = original_object.name + "_skc"
             skeleton_obj.modifiers.new(name="Collision", type="COLLISION")
 
             decimate_mod = skeleton_obj.modifiers.new(name="Decimate", type="DECIMATE")
