@@ -24,3 +24,19 @@
 | `Merge by Distance `        | In edit mode select any face                             |
 | `Apply Collision and Decimate`         |  Create skeleton mesh and sets decimate modifier ratio to `0.5`                          |
 | `Export` | (GLB, FBX) automatically presets export options and generates copyright text |
+
+--- 
+
+## Render St Addon
+
+## Instalation
+1. Log in to [render.st](https://render.st/)
+2. Navigate to [Plugins & Add-ons](https://my.render.st/plugins/blender)
+3. Click on the link `Download for Blender version 2.79 and higher`
+4. Open blender and install downloaded **zip** folder
+5. Activate add-on
+6. Add-on is located under `render` section
+ - ![Screenshot 2024-07-19 at 2 29 14 PM](https://github.com/user-attachments/assets/3e99c9be-0ee7-4844-8782-7f5564f7c31a)
+7. Log in to add-on
+8. You can start rendering by frame or animation
+9. Check progress on the [render.st](https://render.st/)
