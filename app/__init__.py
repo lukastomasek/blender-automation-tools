@@ -198,7 +198,7 @@ class OriginToGeometry(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
         self.report({'INFO'}, 'Origin set to Geometry')
-        
+
         return {'FINISHED'}
 
 class Panel(bpy.types.Panel):
@@ -230,6 +230,7 @@ class Panel(bpy.types.Panel):
         col.operator("object.remove_empty", text="Remove Empty")
         col.separator()
         col.operator("object.origin_to_geometry", text="Origin to Geometry")
+        layout.separator()
 
 
     def draw_mesh_window(self, context, layout):
