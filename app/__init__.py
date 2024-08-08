@@ -169,7 +169,7 @@ class ExportModel(bpy.types.Operator):
         if export_options == 'GLB':
             bpy.ops.export_scene.gltf('INVOKE_DEFAULT', export_copyright=self.copyright_text, use_selection=True, use_visible=True )
         elif export_options == 'OBJ':
-              print('Exporting OBJ not supported from blender yet')  
+            self.report({'WARNING'}, "Exporting OBJ not supported from blender yet")
         elif export_options == 'FBX':
             bpy.ops.export_scene.fbx('INVOKE_DEFAULT', use_selection=True, use_visible=False, object_types={'MESH'}, use_space_transform=True, bake_space_transform=True, bake_anim=False)
         else:
@@ -188,6 +188,16 @@ class RemoveEmpty(bpy.types.Operator):
         msg = Utils.remove_empty()
 
         self.report({'INFO'}, msg)
+
+        return {'FINISHED'}
+
+class OriginToGeometry(bpy.types.Operator):
+    bl_idname = "object.origin_to_geometry"
+    bl_label = "Origin to Geometry"
+
+    def execute(self, context):
+        bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
+        self.report({'INFO'}, 'Origin set to Geometry')
 
         return {'FINISHED'}
 
@@ -218,7 +228,10 @@ class Panel(bpy.types.Panel):
         col.operator("object.apply_all_transforms", text="Apply All Transforms")
         col.separator()
         col.operator("object.remove_empty", text="Remove Empty")
+        col.separator()
+        col.operator("object.origin_to_geometry", text="Origin to Geometry")
         layout.separator()
+
 
     def draw_mesh_window(self, context, layout):
         layout.label(text="Mesh")
@@ -247,7 +260,8 @@ classes = (
     ApplyCollisionAndDecimate,
     ExportModel,
     SceneProperties,
-    RemoveEmpty
+    RemoveEmpty,
+    OriginToGeometry
 )
         
 def register():
