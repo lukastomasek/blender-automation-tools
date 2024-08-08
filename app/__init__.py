@@ -191,6 +191,16 @@ class RemoveEmpty(bpy.types.Operator):
 
         return {'FINISHED'}
 
+class OriginToGeometry(bpy.types.Operator):
+    bl_idname = "object.origin_to_geometry"
+    bl_label = "Origin to Geometry"
+
+    def execute(self, context):
+        bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY', center='MEDIAN')
+        self.report({'INFO'}, 'Origin set to Geometry')
+        
+        return {'FINISHED'}
+
 class Panel(bpy.types.Panel):
     bl_label = '3dStaged'
     bl_name = '3dStaged Automation Tools'
@@ -218,7 +228,9 @@ class Panel(bpy.types.Panel):
         col.operator("object.apply_all_transforms", text="Apply All Transforms")
         col.separator()
         col.operator("object.remove_empty", text="Remove Empty")
-        layout.separator()
+        col.separator()
+        col.operator("object.origin_to_geometry", text="Origin to Geometry")
+
 
     def draw_mesh_window(self, context, layout):
         layout.label(text="Mesh")
@@ -247,7 +259,8 @@ classes = (
     ApplyCollisionAndDecimate,
     ExportModel,
     SceneProperties,
-    RemoveEmpty
+    RemoveEmpty,
+    OriginToGeometry
 )
         
 def register():
