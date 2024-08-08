@@ -169,7 +169,7 @@ class ExportModel(bpy.types.Operator):
         if export_options == 'GLB':
             bpy.ops.export_scene.gltf('INVOKE_DEFAULT', export_copyright=self.copyright_text, use_selection=True, use_visible=True )
         elif export_options == 'OBJ':
-              print('Exporting OBJ not supported from blender yet')  
+            self.report({'WARNING'}, "Exporting OBJ not supported from blender yet")
         elif export_options == 'FBX':
             bpy.ops.export_scene.fbx('INVOKE_DEFAULT', use_selection=True, use_visible=False, object_types={'MESH'}, use_space_transform=True, bake_space_transform=True, bake_anim=False)
         else:
