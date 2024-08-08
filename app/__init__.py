@@ -23,7 +23,7 @@ bl_info = {
     "author" : "Lukas Tomasek",
     "description" : "3dStaged Automation Tools",
     "blender" : (4, 0, 0),
-    "version" : (0, 0, 3),
+    "version" : (0, 0, 4),
     "location" : "Tool -> 3dStaged Automation Tools",
     "warning" : "",
     "doc_url": "https://github.com/lukastomasek/blender-automation-tools",
