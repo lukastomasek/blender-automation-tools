@@ -18,7 +18,7 @@
 - Add baseboard glb into the scene
 - Copy name of the corresponding plane
 
-### Tranform
+### Transform
 
 - Copy location
 - Change rotation mode for baseboard from `Quaternion` to `XYZ euler`
