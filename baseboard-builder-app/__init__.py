@@ -22,12 +22,12 @@ import bpy
 from mathutils import Matrix, Vector
 
 bl_info = {
-    "name" : "Baseboard Builder",
+    "name" : "3dStaged Baseboard Builder",
     "author" : "Lukas Tomasek",
     "description" : "Baseboard builder",
     "blender" : (4, 0, 0),
     "version" : (0, 0, 1),
-    "location" : "",
+    "location" : "Tool -> Baseboard Builder",
     "warning" : "",
     "doc_url": "https://github.com/lukastomasek/blender-automation-tools",
     "category" : "Generic"
@@ -124,7 +124,7 @@ class Generate(bpy.types.Operator):
             self.report({'ERROR'}, "Baseboard placeholder not found")
             return
 
-        baseboard_id = 'BaseBoard1'
+        baseboard_id = 'BaseBoard'
         placeholder_children = baseboard_placeholder.children
         baseboard = bpy.data.objects.get(baseboard_id)
         target_collection = bpy.data.collections.get('Scene Collection')
