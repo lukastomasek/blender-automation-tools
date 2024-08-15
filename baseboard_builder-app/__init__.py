@@ -16,10 +16,6 @@
 # https://blender.stackexchange.com/questions/57306/how-to-create-a-custom-ui/57332#57332
 #======================
 
-
-#TODO: add support for multiple baseboards
-#TODO: replace parent and naming convention
-#TODO: delete placeholder objects 
 #TODO: research rotation and scale
 
 import bpy
@@ -95,7 +91,7 @@ class Utils():
         return intersecting_walls
 
 class Panel(bpy.types.Panel):
-    bl_label = 'Baseboard-builder'
+    bl_label = 'Baseboard Builder'
     bl_name = 'Baseboard Automation Tools'
     bl_idname = 'baseboard_builder_automation_tools'
     bl_space_type = 'VIEW_3D'
@@ -122,6 +118,7 @@ class Generate(bpy.types.Operator):
     def create(self, context):
         planes = [] 
         baseboard_placeholder = bpy.data.objects['baseboard_placeholder']
+        default_height = 0.111787
 
         if baseboard_placeholder is None:
             self.report({'ERROR'}, "Baseboard placeholder not found")
@@ -130,6 +127,7 @@ class Generate(bpy.types.Operator):
         baseboard_id = 'BaseBoard1'
         placeholder_children = baseboard_placeholder.children
         baseboard = bpy.data.objects.get(baseboard_id)
+        target_collection = bpy.data.collections.get('Scene Collection')
 
         for child in placeholder_children:
             for plane in child.children:
@@ -140,12 +138,11 @@ class Generate(bpy.types.Operator):
             new_baseboard = baseboard.copy()
             new_baseboard.data = baseboard.data.copy()
 
-            new_baseboard.location = plane.location
+            new_baseboard.location = Vector((plane.location.x, plane.location.y, default_height))
             new_baseboard.name = plane.name
             new_baseboard.rotation_mode = 'XYZ'
             bpy.context.collection.objects.link(new_baseboard)
-            # new_baseboard.parent = parent
-
+            new_baseboard.parent = parent
 
             # Unlink the original plane from all collections
             for collection in plane.users_collection:
@@ -181,3 +178,6 @@ def register():
 def unregister():
    for cls in classes:
         bpy.utils.unregister_class(cls)
+
+if __name__ == "__init__":
+    register()
