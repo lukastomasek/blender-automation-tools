@@ -37,8 +37,21 @@ bl_info = {
     "category" : "Generic"
 }
 
-
 class Utils():
+
+    @staticmethod 
+    def duplicate_object(original):
+        new = original.copy()
+        new.data = original.data.copy()
+        new.name = original.name
+
+        return new
+
+    @staticmethod
+    def constains_id(target, id):
+        return id in target
+
+    
     @staticmethod
     def check_intersection_with_walls(obj):
         """
@@ -93,37 +106,68 @@ class Panel(bpy.types.Panel):
         layout = self.layout
         layout.label(text="Baseboard Builder")
         col = layout.column(align=True)
-        col.operator("baseboard.generate", text="Generate Baseboard")
+        col.operator("baseboard.generate", text="Generate Baseboards")
 
 
 class Generate(bpy.types.Operator):
     bl_idname = "baseboard.generate"
-    bl_label = "Generate Baseboard"  
+    bl_label = "Generate Baseboards"  
 
     def execute(self, context):
-        self.set_position(context)
-        self.set_rotation(context)
+        self.create(context)
         self.report({'INFO'}, "Baseboard generated")
+
         return {'FINISHED'}
 
-    def set_position(self, context):
-        active_objects = bpy.context.selected_objects
-        baseboard = active_objects[1]
-        placeholder = active_objects[0]
+    def create(self, context):
+        planes = [] 
+        baseboard_placeholder = bpy.data.objects['baseboard_placeholder']
 
-        baseboard.name = placeholder.name
+        if baseboard_placeholder is None:
+            self.report({'ERROR'}, "Baseboard placeholder not found")
+            return
 
-        baseboard.location = placeholder.location
+        baseboard_id = 'BaseBoard1'
+        placeholder_children = baseboard_placeholder.children
+        baseboard = bpy.data.objects.get(baseboard_id)
+
+        for child in placeholder_children:
+            for plane in child.children:
+                 planes.append(plane)
+
+        for plane in planes:
+            parent = plane.parent
+            new_baseboard = baseboard.copy()
+            new_baseboard.data = baseboard.data.copy()
+
+            new_baseboard.location = plane.location
+            new_baseboard.name = plane.name
+            new_baseboard.rotation_mode = 'XYZ'
+            bpy.context.collection.objects.link(new_baseboard)
+            # new_baseboard.parent = parent
+
+
+            # Unlink the original plane from all collections
+            for collection in plane.users_collection:
+                collection.objects.unlink(plane)
+
+            # Remove the original plane from Blender's data
+            bpy.data.objects.remove(plane, do_unlink=True)
+            
     
-    def set_rotation(self, context):
-        active_objects = bpy.context.selected_objects
-        baseboard = active_objects[1]
+        collection = bpy.data.collections.get('Collection')
 
-        baseboard.rotation_mode = 'XYZ'
-        self.report({'INFO'}, "Baseboard rotated")
+        if collection is None:
+            self.report({'ERROR'}, "Collection not found")
+            return
 
-    def set_parent(self, context):
-        pass     
+        for obj in collection.objects:
+            if baseboard_id in obj.name:
+                collection.objects.unlink(obj)
+                bpy.data.objects.remove(obj, do_unlink=True)
+
+        planes = []
+      
 
 classes = (
  Panel,
