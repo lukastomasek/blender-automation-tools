@@ -16,7 +16,7 @@
 # https://blender.stackexchange.com/questions/57306/how-to-create-a-custom-ui/57332#57332
 #======================
 
-#TODO: research rotation and scale
+# ** IMPORTANT - rotation and scale can't be applied to baseboards because walls are not supported yet. **
 
 import bpy
 from mathutils import Matrix, Vector
